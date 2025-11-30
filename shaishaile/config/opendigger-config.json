@@ -1,0 +1,17 @@
+{
+  "base_url": "https://oss.x-lab.info/open_digger/github/",
+  "supported_metrics": [
+    "openrank", "activity", "stars", "technical_fork",
+    "participants", "issues_new", "issues_closed"
+  ],
+  "cache_settings": {
+    "enabled": true,
+    "cache_dir": "data/raw/",
+    "default_ttl": 3600
+  },
+  "request_settings": {
+    "timeout": 30,
+    "retry_times": 3,
+    "rate_limit_per_minute": 30
+  }
+}
