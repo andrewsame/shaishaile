@@ -1,0 +1,579 @@
+不要动这个文件，这个文件是备用文件。如果主文件无法使用，使用此文件来代替
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenDigger数据分析平台 - DataEase预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1890ff 0%, #0050b3 100%);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+        
+        .form-group {
+            flex: 1;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #595959;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+        
+        .search-btn {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .search-btn:hover {
+            background: #0050b3;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-cards {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .metric-icon {
+            font-size: 32px;
+            margin-right: 16px;
+        }
+        
+        .metric-content {
+            flex: 1;
+        }
+        
+        .metric-name {
+            color: #595959;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .chart-container.full {
+            grid-column: span 12;
+        }
+        
+        .chart-container.half {
+            grid-column: span 6;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #262626;
+        }
+        
+        .chart-placeholder {
+            height: 300px;
+            background: #fafafa;
+            border: 2px dashed #d9d9d9;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8c8c8c;
+            font-size: 14px;
+        }
+        
+        .data-table {
+            grid-column: span 12;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .table-content {
+            padding: 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #fafafa;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            color: #262626;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        tr:hover {
+            background: #fafafa;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #1890ff;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #8c8c8c;
+            font-size: 12px;
+            margin-top: 40px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        @media (max-width: 1200px) {
+            .metric-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .chart-container.half {
+                grid-column: span 12;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .metric-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 OpenDigger数据分析平台</h1>
+        <div class="subtitle">基于DataEase的可视化分析平台 - 预览版</div>
+    </div>
+    
+    <div class="container">
+        <!-- 搜索区域 -->
+        <div class="search-box">
+            <div class="search-form">
+                <div class="form-group">
+                    <label for="owner">仓库所有者</label>
+                    <input type="text" id="owner" placeholder="例如：X-lab2018">
+                </div>
+                <div class="form-group">
+                    <label for="repo">仓库名称</label>
+                    <input type="text" id="repo" placeholder="例如：open-digger">
+                </div>
+                <button class="search-btn" onclick="analyzeRepository()">
+                    📊 开始分析
+                </button>
+            </div>
+        </div>
+        
+        <!-- 加载状态 -->
+        <div class="loading" id="loading">
+            <div>正在获取数据...</div>
+        </div>
+        
+        <!-- 仪表板区域 -->
+        <div id="dashboard" style="display: none;">
+            <!-- 核心指标卡片 -->
+            <div class="dashboard-grid">
+                <div class="metric-cards" id="metricCards">
+                    <!-- 指标卡片将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 图表区域 -->
+            <div class="dashboard-grid">
+                <div class="chart-container half">
+                    <div class="chart-title">📈 项目综合评分雷达图</div>
+                    <div class="chart-placeholder">
+                        雷达图将在这里显示
+                    </div>
+                </div>
+                
+                <div class="chart-container half">
+                    <div class="chart-title">📊 活跃度趋势图</div>
+                    <div class="chart-placeholder">
+                        趋势图将在这里显示
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 数据表格 -->
+            <div class="dashboard-grid">
+                <div class="data-table">
+                    <div class="table-header">
+                        <div class="chart-title">📋 热门仓库对比</div>
+                    </div>
+                    <div class="table-content">
+                        <table id="comparisonTable">
+                            <thead>
+                                <tr>
+                                    <th>仓库名称</th>
+                                    <th>主要语言</th>
+                                    <th>OpenRank</th>
+                                    <th>活跃度</th>
+                                    <th>贡献者数</th>
+                                    <th>提交频率</th>
+                                    <th>响应时间(天)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <!-- 表格数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>OpenDigger数据分析平台 © 2024 | DataEase可视化预览版</p>
+        <p>API服务器: http://localhost:5000 | 数据源: OpenDigger API</p>
+    </div>
+    
+    <script>
+        // 模拟数据 - 在实际使用中会从API获取
+        const sampleData = {
+            repo_name: "X-lab2018/open-digger",
+            primary_language: "JavaScript",
+            description: "Open source project analysis tools and platform",
+            openrank: 45.2,
+            activity_score: 8.5,
+            contributor_count: 128,
+            commit_frequency: 10.5,
+            avg_response_time: 3.2
+        };
+        
+        const sampleComparisonData = [
+            {
+                repo_name: "X-lab2018/open-digger",
+                primary_language: "JavaScript",
+                openrank: 45.2,
+                activity_score: 8.5,
+                contributor_count: 128,
+                commit_frequency: 10.5,
+                avg_response_time: 3.2
+            },
+            {
+                repo_name: "vuejs/vue",
+                primary_language: "JavaScript",
+                openrank: 98.7,
+                activity_score: 9.8,
+                contributor_count: 342,
+                commit_frequency: 25.3,
+                avg_response_time: 1.2
+            },
+            {
+                repo_name: "facebook/react",
+                primary_language: "JavaScript",
+                openrank: 96.5,
+                activity_score: 9.5,
+                contributor_count: 1563,
+                commit_frequency: 32.8,
+                avg_response_time: 2.4
+            },
+            {
+                repo_name: "tensorflow/tensorflow",
+                primary_language: "C++",
+                openrank: 87.3,
+                activity_score: 8.9,
+                contributor_count: 2894,
+                commit_frequency: 45.6,
+                avg_response_time: 5.8
+            }
+        ];
+        
+        // 指标卡片配置
+        const metricConfigs = [
+            {
+                field: 'openrank',
+                name: 'OpenRank指数',
+                icon: '📊',
+                color: '#4CAF50'
+            },
+            {
+                field: 'activity_score',
+                name: '活跃度分数',
+                icon: '⚡',
+                color: '#2196F3'
+            },
+            {
+                field: 'contributor_count',
+                name: '贡献者数量',
+                icon: '👥',
+                color: '#FF9800'
+            },
+            {
+                field: 'avg_response_time',
+                name: '平均响应天数',
+                icon: '⏱️',
+                color: '#9C27B0'
+            }
+        ];
+        
+        // 分析仓库
+        async function analyzeRepository() {
+            const owner = document.getElementById('owner').value;
+            const repo = document.getElementById('repo').value;
+            
+            if (!owner || !repo) {
+                alert('请输入仓库所有者和仓库名称');
+                return;
+            }
+            
+            // 显示加载状态
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('dashboard').style.display = 'none';
+            
+            try {
+                // 在实际环境中，这里应该调用真实的API
+                // const response = await fetch('http://localhost:5000/analyze', {
+                //     method: 'POST',
+                //     headers: {'Content-Type': 'application/json'},
+                //     body: JSON.stringify({ owner, repo })
+                // });
+                // const data = await response.json();
+                
+                // 模拟API调用延迟
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 使用模拟数据
+                const data = {
+                    success: true,
+                    data: {
+                        ...sampleData,
+                        repo_name: `${owner}/${repo}`
+                    }
+                };
+                
+                if (data.success) {
+                    updateDashboard(data.data);
+                    loadComparisonData();
+                    document.getElementById('dashboard').style.display = 'block';
+                } else {
+                    alert('获取数据失败: ' + (data.error || '未知错误'));
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+                // 如果API调用失败，显示模拟数据
+                updateDashboard({
+                    ...sampleData,
+                    repo_name: `${owner}/${repo}`
+                });
+                loadComparisonData();
+                document.getElementById('dashboard').style.display = 'block';
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+        
+        // 更新仪表板
+        function updateDashboard(repoData) {
+            updateMetricCards(repoData);
+            updateTableTitle(repoData.repo_name);
+        }
+        
+        // 更新指标卡片
+        function updateMetricCards(data) {
+            const container = document.getElementById('metricCards');
+            container.innerHTML = '';
+            
+            metricConfigs.forEach(config => {
+                const value = data[config.field];
+                const formattedValue = formatValue(value, config.field);
+                
+                const card = document.createElement('div');
+                card.className = 'metric-card';
+                card.innerHTML = `
+                    <div class="metric-icon">${config.icon}</div>
+                    <div class="metric-content">
+                        <div class="metric-name">${config.name}</div>
+                        <div class="metric-value" style="color: ${config.color}">${formattedValue}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        // 更新表格标题
+        function updateTableTitle(repoName) {
+            const tableHeader = document.querySelector('.table-header .chart-title');
+            if (tableHeader) {
+                tableHeader.textContent = `📋 ${repoName} 与热门仓库对比`;
+            }
+        }
+        
+        // 加载对比数据
+        function loadComparisonData() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            sampleComparisonData.forEach(repo => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${repo.repo_name}</td>
+                    <td>${repo.primary_language}</td>
+                    <td>${formatValue(repo.openrank, 'openrank')}</td>
+                    <td>${formatValue(repo.activity_score, 'activity_score')}</td>
+                    <td>${formatValue(repo.contributor_count, 'contributor_count')}</td>
+                    <td>${formatValue(repo.commit_frequency, 'commit_frequency')}</td>
+                    <td>${formatValue(repo.avg_response_time, 'avg_response_time')}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // 格式化数值
+        function formatValue(value, field) {
+            if (value === undefined || value === null) return '-';
+            
+            switch(field) {
+                case 'openrank':
+                case 'activity_score':
+                    return value.toFixed(2);
+                case 'contributor_count':
+                    return value.toLocaleString();
+                case 'commit_frequency':
+                case 'avg_response_time':
+                    return value.toFixed(1);
+                default:
+                    return value;
+            }
+        }
+        
+        // 页面加载时显示默认数据
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('owner').value = 'X-lab2018';
+            document.getElementById('repo').value = 'open-digger';
+            
+            // 显示模拟数据
+            updateDashboard(sampleData);
+            loadComparisonData();
+            document.getElementById('dashboard').style.display = 'block';
+        });
+    </script>
+</body>
+</html>

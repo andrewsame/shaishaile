@@ -1,0 +1,1151 @@
+注意922行，那里后续需要改动，当有实际数据时，应该启用922的代码
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenDigger数据分析平台 - DataEase预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1890ff 0%, #0050b3 100%);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .header .subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .search-box {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .search-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #262626;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #595959;
+        }
+        
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            background-color: white;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .quick-btn {
+            background: #fafafa;
+            border: 1px solid #d9d9d9;
+            color: #595959;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+        
+        .quick-btn:hover {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+        
+        .search-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .search-btn {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .search-btn:hover {
+            background: #0050b3;
+        }
+        
+        .search-btn.secondary {
+            background: #fafafa;
+            color: #595959;
+            border: 1px solid #d9d9d9;
+        }
+        
+        .search-btn.secondary:hover {
+            background: #f0f0f0;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-cards {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .metric-icon {
+            font-size: 32px;
+            margin-right: 16px;
+        }
+        
+        .metric-content {
+            flex: 1;
+        }
+        
+        .metric-name {
+            color: #595959;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .chart-container.full {
+            grid-column: span 12;
+        }
+        
+        .chart-container.half {
+            grid-column: span 6;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: #262626;
+        }
+        
+        .chart-placeholder {
+            height: 300px;
+            background: #fafafa;
+            border: 2px dashed #d9d9d9;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8c8c8c;
+            font-size: 14px;
+        }
+        
+        .data-table {
+            grid-column: span 12;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .table-content {
+            padding: 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #fafafa;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            color: #262626;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        tr:hover {
+            background: #fafafa;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #1890ff;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #8c8c8c;
+            font-size: 12px;
+            margin-top: 40px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .search-type {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+        
+        .search-type-btn {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #595959;
+            transition: all 0.3s;
+        }
+        
+        .search-type-btn.active {
+            background: white;
+            color: #1890ff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 1200px) {
+            .metric-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .chart-container.half {
+                grid-column: span 12;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .metric-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+            }
+            
+            .quick-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 OpenDigger数据分析平台</h1>
+        <div class="subtitle">基于DataEase的可视化分析平台 - 下拉选择版</div>
+    </div>
+    
+    <div class="container">
+        <!-- 搜索区域 -->
+        <div class="search-box">
+            <div class="search-title">
+                <span>🔍 仓库分析</span>
+            </div>
+            
+            <!-- 搜索类型切换 -->
+            <div class="search-type" id="searchType">
+                <button class="search-type-btn active" onclick="setSearchType('single')">
+                    📊 单个仓库分析
+                </button>
+                <button class="search-type-btn" onclick="setSearchType('batch')">
+                    📈 批量仓库对比
+                </button>
+                <button class="search-type-btn" onclick="setSearchType('trend')">
+                    📉 指标趋势分析
+                </button>
+            </div>
+            
+            <!-- 单个仓库分析表单 -->
+            <div id="singleSearch" class="search-form">
+                <div class="form-group">
+                    <label for="owner">👤 仓库所有者</label>
+                    <select id="owner" onchange="updateRepos()">
+                        <option value="">请选择所有者...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="repo">📁 仓库名称</label>
+                    <select id="repo">
+                        <option value="">请选择仓库...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="language">💻 主要语言</label>
+                    <select id="language" onchange="filterByLanguage()">
+                        <option value="">全部语言</option>
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="Python">Python</option>
+                        <option value="Java">Java</option>
+                        <option value="Go">Go</option>
+                        <option value="C++">C++</option>
+                        <option value="Rust">Rust</option>
+                        <option value="TypeScript">TypeScript</option>
+                        <option value="C#">C#</option>
+                        <option value="PHP">PHP</option>
+                        <option value="Swift">Swift</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">🏷️ 项目分类</label>
+                    <select id="category" onchange="filterByCategory()">
+                        <option value="">全部分类</option>
+                        <option value="web">Web框架</option>
+                        <option value="ai">机器学习/AI</option>
+                        <option value="database">数据库</option>
+                        <option value="tools">开发工具</option>
+                        <option value="infra">基础设施</option>
+                        <option value="mobile">移动开发</option>
+                        <option value="game">游戏开发</option>
+                        <option value="security">安全</option>
+                        <option value="devops">DevOps</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 快速选择按钮 -->
+            <div class="quick-actions">
+                <div style="font-size: 12px; color: #8c8c8c; margin-right: 8px;">🚀 热门项目:</div>
+                <button class="quick-btn" onclick="selectRepo('X-lab2018', 'open-digger')">
+                    OpenDigger
+                </button>
+                <button class="quick-btn" onclick="selectRepo('vuejs', 'vue')">
+                    Vue.js
+                </button>
+                <button class="quick-btn" onclick="selectRepo('facebook', 'react')">
+                    React
+                </button>
+                <button class="quick-btn" onclick="selectRepo('tensorflow', 'tensorflow')">
+                    TensorFlow
+                </button>
+                <button class="quick-btn" onclick="selectRepo('microsoft', 'vscode')">
+                    VS Code
+                </button>
+                <button class="quick-btn" onclick="selectRepo('kubernetes', 'kubernetes')">
+                    Kubernetes
+                </button>
+                <button class="quick-btn" onclick="selectRepo('docker', 'docker')">
+                    Docker
+                </button>
+                <button class="quick-btn" onclick="selectRepo('spring-projects', 'spring-boot')">
+                    Spring Boot
+                </button>
+                <button class="quick-btn" onclick="selectRepo('django', 'django')">
+                    Django
+                </button>
+                <button class="quick-btn" onclick="selectRepo('flutter', 'flutter')">
+                    Flutter
+                </button>
+            </div>
+            
+            <!-- 搜索按钮 -->
+            <div class="search-buttons">
+                <button class="search-btn" onclick="analyzeRepository()">
+                    <span>📊 开始分析</span>
+                </button>
+                <button class="search-btn secondary" onclick="resetSearch()">
+                    <span>🔄 重置选择</span>
+                </button>
+                <button class="search-btn secondary" onclick="loadSampleData()">
+                    <span>🎯 加载示例</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 加载状态 -->
+        <div class="loading" id="loading">
+            <div>正在获取数据...</div>
+        </div>
+        
+        <!-- 仪表板区域 -->
+        <div id="dashboard" style="display: none;">
+            <!-- 核心指标卡片 -->
+            <div class="dashboard-grid">
+                <div class="metric-cards" id="metricCards">
+                    <!-- 指标卡片将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 图表区域 -->
+            <div class="dashboard-grid">
+                <div class="chart-container half">
+                    <div class="chart-title">📈 项目综合评分雷达图</div>
+                    <div class="chart-placeholder">
+                        雷达图将在这里显示
+                    </div>
+                </div>
+                
+                <div class="chart-container half">
+                    <div class="chart-title">📊 活跃度趋势图</div>
+                    <div class="chart-placeholder">
+                        趋势图将在这里显示
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 数据表格 -->
+            <div class="dashboard-grid">
+                <div class="data-table">
+                    <div class="table-header">
+                        <div class="chart-title">📋 热门仓库对比</div>
+                    </div>
+                    <div class="table-content">
+                        <table id="comparisonTable">
+                            <thead>
+                                <tr>
+                                    <th>仓库名称</th>
+                                    <th>主要语言</th>
+                                    <th>OpenRank</th>
+                                    <th>活跃度</th>
+                                    <th>贡献者数</th>
+                                    <th>提交频率</th>
+                                    <th>响应时间(天)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <!-- 表格数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>OpenDigger数据分析平台 © 2024 | DataEase可视化预览版</p>
+        <p>使用下拉菜单选择仓库，点击"开始分析"获取数据</p>
+    </div>
+    
+    <script>
+        // 仓库数据 - 用于下拉菜单
+        const repositoryData = {
+            // 按所有者分组
+            owners: [
+                "X-lab2018", "vuejs", "facebook", "tensorflow", "pytorch",
+                "microsoft", "google", "alibaba", "Tencent", "apache",
+                "spring-projects", "django", "flask", "nodejs", "docker",
+                "kubernetes", "elastic", "mongodb", "redis", "postgres",
+                "golang", "rust-lang", "flutter", "electron", "vercel",
+                "netflix", "airbnb", "uber", "lyft", "spotify"
+            ],
+            
+            // 仓库列表（owner -> [repos]）
+            reposByOwner: {
+                "X-lab2018": ["open-digger", "github-analysis"],
+                "vuejs": ["vue", "vuex", "vue-router", "vue-cli"],
+                "facebook": ["react", "react-native", "jest", "create-react-app"],
+                "tensorflow": ["tensorflow", "tfjs", "tensor2tensor"],
+                "pytorch": ["pytorch", "vision", "audio", "text"],
+                "microsoft": ["vscode", "TypeScript", "dotnet", "PowerToys"],
+                "google": ["angular", "golang", "kubernetes", "material-design"],
+                "alibaba": ["arthas", "nacos", "dubbo", "fastjson"],
+                "apache": ["kafka", "hadoop", "spark", "flink"],
+                "spring-projects": ["spring-boot", "spring-framework", "spring-cloud"],
+                "docker": ["docker", "compose", "machine"],
+                "kubernetes": ["kubernetes", "minikube", "dashboard"],
+                "elastic": ["elasticsearch", "kibana", "logstash", "beats"]
+            },
+            
+            // 热门仓库（用于快速选择）
+            popularRepos: [
+                {owner: "X-lab2018", repo: "open-digger", language: "JavaScript", category: "tools"},
+                {owner: "vuejs", repo: "vue", language: "JavaScript", category: "web"},
+                {owner: "facebook", repo: "react", language: "JavaScript", category: "web"},
+                {owner: "tensorflow", repo: "tensorflow", language: "Python", category: "ai"},
+                {owner: "pytorch", repo: "pytorch", language: "Python", category: "ai"},
+                {owner: "microsoft", repo: "vscode", language: "TypeScript", category: "tools"},
+                {owner: "google", repo: "angular", language: "TypeScript", category: "web"},
+                {owner: "alibaba", repo: "arthas", language: "Java", category: "tools"},
+                {owner: "apache", repo: "kafka", language: "Java", category: "infra"},
+                {owner: "spring-projects", repo: "spring-boot", language: "Java", category: "web"},
+                {owner: "docker", repo: "docker", language: "Go", category: "infra"},
+                {owner: "kubernetes", repo: "kubernetes", language: "Go", category: "infra"},
+                {owner: "elastic", repo: "elasticsearch", language: "Java", category: "database"},
+                {owner: "mongodb", repo: "mongo", language: "C++", category: "database"},
+                {owner: "redis", repo: "redis", language: "C", category: "database"},
+                {owner: "postgres", repo: "postgres", language: "C", category: "database"},
+                {owner: "flutter", repo: "flutter", language: "Dart", category: "mobile"},
+                {owner: "electron", repo: "electron", language: "C++", category: "tools"}
+            ],
+            
+            // 语言分类
+            languages: {
+                "JavaScript": ["vuejs/vue", "facebook/react", "X-lab2018/open-digger"],
+                "Python": ["tensorflow/tensorflow", "pytorch/pytorch", "django/django"],
+                "Java": ["spring-projects/spring-boot", "alibaba/arthas", "apache/kafka"],
+                "Go": ["docker/docker", "kubernetes/kubernetes", "golang/go"],
+                "C++": ["tensorflow/tensorflow", "mongodb/mongo", "electron/electron"],
+                "TypeScript": ["microsoft/vscode", "google/angular", "microsoft/TypeScript"],
+                "C": ["redis/redis", "postgres/postgres", "git/git"],
+                "Rust": ["rust-lang/rust", "denoland/deno", "servo/servo"],
+                "C#": ["dotnet/core", "Unity-Technologies/Unity", "microsoft/dotnet"],
+                "PHP": ["laravel/laravel", "symfony/symfony", "composer/composer"],
+                "Swift": ["apple/swift", "Alamofire/Alamofire", "SwiftUI/SwiftUI"],
+                "Dart": ["flutter/flutter", "dart-lang/sdk", "firebase/flutterfire"]
+            },
+            
+            // 分类数据
+            categories: {
+                "web": ["vuejs/vue", "facebook/react", "spring-projects/spring-boot"],
+                "ai": ["tensorflow/tensorflow", "pytorch/pytorch", "scikit-learn/scikit-learn"],
+                "database": ["elastic/elasticsearch", "mongodb/mongo", "redis/redis"],
+                "tools": ["microsoft/vscode", "X-lab2018/open-digger", "docker/docker"],
+                "infra": ["kubernetes/kubernetes", "apache/kafka", "istio/istio"],
+                "mobile": ["flutter/flutter", "facebook/react-native", "expo/expo"],
+                "game": ["Unity-Technologies/Unity", "godotengine/godot", "libgdx/libgdx"],
+                "security": ["OWASP/CheatSheetSeries", "hashcat/hashcat", "NationalSecurityAgency/ghidra"],
+                "devops": ["jenkinsci/jenkins", "hashicorp/terraform", "ansible/ansible"]
+            }
+        };
+        
+        // 当前搜索类型
+        let currentSearchType = 'single';
+        
+        // 指标卡片配置
+        const metricConfigs = [
+            {
+                field: 'openrank',
+                name: 'OpenRank指数',
+                icon: '📊',
+                color: '#4CAF50'
+            },
+            {
+                field: 'activity_score',
+                name: '活跃度分数',
+                icon: '⚡',
+                color: '#2196F3'
+            },
+            {
+                field: 'contributor_count',
+                name: '贡献者数量',
+                icon: '👥',
+                color: '#FF9800'
+            },
+            {
+                field: 'avg_response_time',
+                name: '平均响应天数',
+                icon: '⏱️',
+                color: '#9C27B0'
+            }
+        ];
+        
+        // 初始化页面
+        function initPage() {
+            // 初始化所有者下拉菜单
+            initOwnerDropdown();
+            
+            // 默认选择第一个所有者
+            if (repositoryData.owners.length > 0) {
+                document.getElementById('owner').value = 'X-lab2018';
+                updateRepos();
+            }
+            
+            // 显示示例数据
+            loadSampleData();
+        }
+        
+        // 初始化所有者下拉菜单
+        function initOwnerDropdown() {
+            const ownerSelect = document.getElementById('owner');
+            
+            // 清空现有选项
+            ownerSelect.innerHTML = '<option value="">请选择所有者...</option>';
+            
+            // 添加所有者选项
+            repositoryData.owners.forEach(owner => {
+                const option = document.createElement('option');
+                option.value = owner;
+                option.textContent = owner;
+                ownerSelect.appendChild(option);
+            });
+            
+            // 添加常用组织分组
+            const groups = {
+                "大型科技公司": ["microsoft", "google", "facebook", "alibaba", "Tencent", "netflix", "airbnb", "uber", "lyft", "spotify"],
+                "开源基金会": ["apache", "linux", "cncf", "openssl", "mozilla"],
+                "流行框架": ["vuejs", "angular", "spring-projects", "django", "flask", "laravel", "expressjs"],
+                "基础设施": ["docker", "kubernetes", "elastic", "prometheus", "grafana", "jenkinsci", "hashicorp"]
+            };
+            
+            Object.keys(groups).forEach(groupName => {
+                const group = document.createElement('optgroup');
+                group.label = groupName;
+                
+                groups[groupName].forEach(owner => {
+                    const option = document.createElement('option');
+                    option.value = owner;
+                    option.textContent = owner;
+                    group.appendChild(option);
+                });
+                
+                ownerSelect.appendChild(group);
+            });
+        }
+        
+        // 更新仓库下拉菜单
+        function updateRepos() {
+            const ownerSelect = document.getElementById('owner');
+            const repoSelect = document.getElementById('repo');
+            const selectedOwner = ownerSelect.value;
+            
+            // 清空现有选项
+            repoSelect.innerHTML = '<option value="">请选择仓库...</option>';
+            
+            if (!selectedOwner) return;
+            
+            // 添加该所有者的仓库
+            if (repositoryData.reposByOwner[selectedOwner]) {
+                repositoryData.reposByOwner[selectedOwner].forEach(repo => {
+                    const option = document.createElement('option');
+                    option.value = repo;
+                    option.textContent = repo;
+                    repoSelect.appendChild(option);
+                });
+            }
+            
+            // 添加热门仓库（如果该所有者有）
+            repositoryData.popularRepos.forEach(item => {
+                if (item.owner === selectedOwner) {
+                    const option = document.createElement('option');
+                    option.value = item.repo;
+                    option.textContent = item.repo;
+                    option.dataset.language = item.language;
+                    option.dataset.category = item.category;
+                    repoSelect.appendChild(option);
+                }
+            });
+        }
+        
+        // 根据语言筛选
+        function filterByLanguage() {
+            const languageSelect = document.getElementById('language');
+            const selectedLanguage = languageSelect.value;
+            
+            if (!selectedLanguage) {
+                // 重置为当前所有者的所有仓库
+                updateRepos();
+                return;
+            }
+            
+            const ownerSelect = document.getElementById('owner');
+            const repoSelect = document.getElementById('repo');
+            const selectedOwner = ownerSelect.value;
+            
+            if (!selectedOwner) {
+                alert('请先选择所有者');
+                languageSelect.value = '';
+                return;
+            }
+            
+            // 清空现有选项
+            repoSelect.innerHTML = '<option value="">请选择仓库...</option>';
+            
+            // 筛选该语言下的仓库
+            const languageRepos = repositoryData.languages[selectedLanguage] || [];
+            const filteredRepos = [];
+            
+            languageRepos.forEach(repoFullName => {
+                const [owner, repo] = repoFullName.split('/');
+                if (owner === selectedOwner) {
+                    filteredRepos.push(repo);
+                }
+            });
+            
+            // 如果没有找到，显示提示
+            if (filteredRepos.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = `该所有者没有${selectedLanguage}项目`;
+                option.disabled = true;
+                repoSelect.appendChild(option);
+            } else {
+                // 添加筛选后的仓库
+                filteredRepos.forEach(repo => {
+                    const option = document.createElement('option');
+                    option.value = repo;
+                    option.textContent = repo;
+                    repoSelect.appendChild(option);
+                });
+            }
+        }
+        
+        // 根据分类筛选
+        function filterByCategory() {
+            const categorySelect = document.getElementById('category');
+            const selectedCategory = categorySelect.value;
+            
+            if (!selectedCategory) {
+                updateRepos();
+                return;
+            }
+            
+            const ownerSelect = document.getElementById('owner');
+            const repoSelect = document.getElementById('repo');
+            const selectedOwner = ownerSelect.value;
+            
+            if (!selectedOwner) {
+                alert('请先选择所有者');
+                categorySelect.value = '';
+                return;
+            }
+            
+            // 清空现有选项
+            repoSelect.innerHTML = '<option value="">请选择仓库...</option>';
+            
+            // 筛选该分类下的仓库
+            const categoryRepos = repositoryData.categories[selectedCategory] || [];
+            const filteredRepos = [];
+            
+            categoryRepos.forEach(repoFullName => {
+                const [owner, repo] = repoFullName.split('/');
+                if (owner === selectedOwner) {
+                    filteredRepos.push(repo);
+                }
+            });
+            
+            // 如果没有找到，显示提示
+            if (filteredRepos.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = '该分类下没有项目';
+                option.disabled = true;
+                repoSelect.appendChild(option);
+            } else {
+                // 添加筛选后的仓库
+                filteredRepos.forEach(repo => {
+                    const option = document.createElement('option');
+                    option.value = repo;
+                    option.textContent = repo;
+                    repoSelect.appendChild(option);
+                });
+            }
+        }
+        
+        // 选择指定仓库
+        function selectRepo(owner, repo) {
+            const ownerSelect = document.getElementById('owner');
+            const repoSelect = document.getElementById('repo');
+            
+            // 设置所有者
+            ownerSelect.value = owner;
+            
+            // 更新仓库列表
+            updateRepos();
+            
+            // 设置仓库
+            setTimeout(() => {
+                repoSelect.value = repo;
+            }, 100);
+            
+            // 触发分析
+            setTimeout(() => analyzeRepository(), 200);
+        }
+        
+        // 设置搜索类型
+        function setSearchType(type) {
+            currentSearchType = type;
+            
+            // 更新按钮状态
+            const buttons = document.querySelectorAll('.search-type-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(getTypeTitle(type))) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 更新搜索标题
+            const title = document.querySelector('.search-title span');
+            title.textContent = `🔍 ${getTypeTitle(type)}`;
+            
+            // 这里可以根据类型显示不同的表单
+            // 暂时只实现单个仓库分析
+        }
+        
+        // 获取类型标题
+        function getTypeTitle(type) {
+            const titles = {
+                'single': '单个仓库分析',
+                'batch': '批量仓库对比',
+                'trend': '指标趋势分析'
+            };
+            return titles[type] || '仓库分析';
+        }
+        
+        // 分析仓库
+        async function analyzeRepository() {
+            const owner = document.getElementById('owner').value;
+            const repo = document.getElementById('repo').value;
+            
+            if (!owner || !repo) {
+                alert('请选择仓库所有者和仓库名称');
+                return;
+            }
+            
+            // 显示加载状态
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('dashboard').style.display = 'none';
+            
+            try {
+                // 在实际环境中，这里应该调用真实的API
+                // const response = await fetch('http://localhost:5000/analyze', {
+                //     method: 'POST',
+                //     headers: {'Content-Type': 'application/json'},
+                //     body: JSON.stringify({ owner, repo })
+                // });
+                // const data = await response.json();
+                
+                // 模拟API调用延迟
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                // 使用模拟数据
+                const data = {
+                    success: true,
+                    data: generateSampleData(owner, repo)
+                };
+                
+                if (data.success) {
+                    updateDashboard(data.data);
+                    loadComparisonData();
+                    document.getElementById('dashboard').style.display = 'block';
+                    
+                    // 添加到历史记录（简化版）
+                    addToHistory(owner, repo);
+                } else {
+                    alert('获取数据失败: ' + (data.error || '未知错误'));
+                }
+            } catch (error) {
+                alert('请求失败: ' + error.message);
+                // 如果API调用失败，显示模拟数据
+                updateDashboard(generateSampleData(owner, repo));
+                loadComparisonData();
+                document.getElementById('dashboard').style.display = 'block';
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+        
+        // 生成样本数据
+        function generateSampleData(owner, repo) {
+            // 为不同语言和分类生成不同的样本数据
+            const language = document.getElementById('language').value || 'JavaScript';
+            const category = document.getElementById('category').value || 'web';
+            
+            // 基础值
+            const baseValues = {
+                JavaScript: { openrank: 45.2, activity: 8.5, contributors: 128, response: 3.2 },
+                Python: { openrank: 87.3, activity: 9.2, contributors: 2894, response: 5.8 },
+                Java: { openrank: 65.8, activity: 7.8, contributors: 892, response: 4.5 },
+                Go: { openrank: 92.1, activity: 9.5, contributors: 1563, response: 2.4 },
+                'C++': { openrank: 76.4, activity: 8.2, contributors: 1123, response: 6.7 },
+                TypeScript: { openrank: 81.5, activity: 8.9, contributors: 743, response: 3.8 }
+            };
+            
+            const base = baseValues[language] || baseValues.JavaScript;
+            
+            // 根据分类调整
+            const categoryMultipliers = {
+                web: { openrank: 1.2, activity: 1.1 },
+                ai: { openrank: 1.3, activity: 1.2 },
+                tools: { openrank: 1.1, activity: 1.0 },
+                infra: { openrank: 1.4, activity: 1.3 },
+                database: { openrank: 1.5, activity: 1.1 }
+            };
+            
+            const multiplier = categoryMultipliers[category] || { openrank: 1.0, activity: 1.0 };
+            
+            return {
+                repo_name: `${owner}/${repo}`,
+                primary_language: language,
+                description: `${language} ${category} 项目`,
+                openrank: (base.openrank * multiplier.openrank).toFixed(1),
+                activity_score: (base.activity * multiplier.activity).toFixed(1),
+                contributor_count: base.contributors,
+                commit_frequency: (Math.random() * 20 + 5).toFixed(1),
+                avg_response_time: base.response.toFixed(1)
+            };
+        }
+        
+        // 更新仪表板
+        function updateDashboard(repoData) {
+            updateMetricCards(repoData);
+            updateTableTitle(repoData.repo_name);
+            
+            // 更新页面标题
+            document.title = `OpenDigger - ${repoData.repo_name}`;
+        }
+        
+        // 更新指标卡片
+        function updateMetricCards(data) {
+            const container = document.getElementById('metricCards');
+            container.innerHTML = '';
+            
+            metricConfigs.forEach(config => {
+                const value = data[config.field];
+                const formattedValue = formatValue(value, config.field);
+                
+                const card = document.createElement('div');
+                card.className = 'metric-card';
+                card.innerHTML = `
+                    <div class="metric-icon">${config.icon}</div>
+                    <div class="metric-content">
+                        <div class="metric-name">${config.name}</div>
+                        <div class="metric-value" style="color: ${config.color}">${formattedValue}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        // 更新表格标题
+        function updateTableTitle(repoName) {
+            const tableHeader = document.querySelector('.table-header .chart-title');
+            if (tableHeader) {
+                tableHeader.textContent = `📋 ${repoName} 与热门仓库对比`;
+            }
+        }
+        
+        // 加载对比数据
+        function loadComparisonData() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            // 获取当前选择的语言用于筛选对比数据
+            const currentLanguage = document.getElementById('language').value;
+            
+            // 筛选对比数据
+            let comparisonRepos = repositoryData.popularRepos;
+            if (currentLanguage) {
+                comparisonRepos = comparisonRepos.filter(repo => 
+                    repo.language === currentLanguage
+                );
+            }
+            
+            // 限制数量
+            comparisonRepos = comparisonRepos.slice(0, 8);
+            
+            comparisonRepos.forEach(item => {
+                const row = document.createElement('tr');
+                const baseValues = {
+                    JavaScript: { openrank: 45.2, activity: 8.5, contributors: 128, response: 3.2 },
+                    Python: { openrank: 87.3, activity: 9.2, contributors: 2894, response: 5.8 },
+                    Java: { openrank: 65.8, activity: 7.8, contributors: 892, response: 4.5 },
+                    Go: { openrank: 92.1, activity: 9.5, contributors: 1563, response: 2.4 },
+                    'C++': { openrank: 76.4, activity: 8.2, contributors: 1123, response: 6.7 },
+                    TypeScript: { openrank: 81.5, activity: 8.9, contributors: 743, response: 3.8 }
+                };
+                
+                const base = baseValues[item.language] || baseValues.JavaScript;
+                
+                row.innerHTML = `
+                    <td>${item.owner}/${item.repo}</td>
+                    <td>${item.language}</td>
+                    <td>${base.openrank.toFixed(1)}</td>
+                    <td>${base.activity.toFixed(1)}</td>
+                    <td>${base.contributors.toLocaleString()}</td>
+                    <td>${(Math.random() * 30 + 5).toFixed(1)}</td>
+                    <td>${base.response.toFixed(1)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // 加载示例数据
+        function loadSampleData() {
+            selectRepo('X-lab2018', 'open-digger');
+        }
+        
+        // 重置搜索
+        function resetSearch() {
+            document.getElementById('owner').value = '';
+            document.getElementById('repo').value = '';
+            document.getElementById('language').value = '';
+            document.getElementById('category').value = '';
+            
+            // 重置仓库列表
+            const repoSelect = document.getElementById('repo');
+            repoSelect.innerHTML = '<option value="">请选择仓库...</option>';
+            
+            // 隐藏仪表板
+            document.getElementById('dashboard').style.display = 'none';
+        }
+        
+        // 添加到历史记录
+        function addToHistory(owner, repo) {
+            // 这里可以保存到localStorage
+            try {
+                const history = JSON.parse(localStorage.getItem('repo_history') || '[]');
+                const newItem = { owner, repo, timestamp: new Date().toISOString() };
+                
+                // 移除重复项
+                const filtered = history.filter(item => 
+                    !(item.owner === owner && item.repo === repo)
+                );
+                
+                // 添加到开头，最多保存10个
+                filtered.unshift(newItem);
+                if (filtered.length > 10) {
+                    filtered.pop();
+                }
+                
+                localStorage.setItem('repo_history', JSON.stringify(filtered));
+            } catch (e) {
+                // 忽略localStorage错误
+            }
+        }
+        
+        // 格式化数值
+        function formatValue(value, field) {
+            if (value === undefined || value === null) return '-';
+            
+            switch(field) {
+                case 'openrank':
+                case 'activity_score':
+                    return parseFloat(value).toFixed(2);
+                case 'contributor_count':
+                    return parseInt(value).toLocaleString();
+                case 'commit_frequency':
+                case 'avg_response_time':
+                    return parseFloat(value).toFixed(1);
+                default:
+                    return value;
+            }
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>
